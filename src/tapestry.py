@@ -5,6 +5,7 @@ import time
 import psutil
 import os
 from resource import *
+from function_stats import Function_Stats
 """
     Within each line of the main func we can parse the line and 
     call each method -- hard --
@@ -19,18 +20,11 @@ from resource import *
 """
 
 
-def do_work():
-    print_hello()
-
-
-def print_hello():
-    print("Hello world")
-
-
 def log_stats(func):
     def wrapper():
         threads = []
-        threads.append(threading.Thread(target=print_stats))
+        threads.append(threading.Thread(
+            target=print_stats, args=(func.__name__, )))
         threads.append(threading.Thread(target=func,  name="mains"))
         start_time = time.perf_counter()
         [x.start() for x in threads]
@@ -41,12 +35,13 @@ def log_stats(func):
     return wrapper()
 
 
-def print_stats():
+def print_stats(name):
     while True:
         print(getrusage(RUSAGE_SELF))
         process = psutil.Process(os.getpid())
-        print(f"{process.memory_info().rss / 1000000} megabytes")  # in bytes
-        print(f'{psutil.cpu_percent(interval=1)}%')
+        mem = process.memory_info().rss / 1000000
+        cpu = psutil.cpu_percent(interval=1)
+        Function_Stats(name, cpu, 12.0, mem).save_to_db()
         if end_logger_when_main_finish():
             break
 
@@ -74,7 +69,6 @@ def randos():
 
 @log_stats
 def main():
-    do_work()
     rando()
     randos()
 

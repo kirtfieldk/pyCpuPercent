@@ -1,22 +1,16 @@
 """
     Connect with SQlite DB 
 """
-from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker
 
-engine = create_engine('sqlite:///:memory:', echo=True)
+metadata = MetaData()
+engine = create_engine("sqlite:///func.db")
+Base = declarative_base()
 Session = sessionmaker(bind=engine)
-
-
-def add_func(func):
-    Session.add(func)
-    Session.commit()
-
+session = Session()
 
 """
     Func must be an array -> this will be an array of the same function with difference cpu percent
 """
-
-
-def add_all_functions(func):
-    Session.add_all(func)
