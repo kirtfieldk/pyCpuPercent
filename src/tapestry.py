@@ -6,6 +6,8 @@ import psutil
 import os
 from resource import *
 from function_stats import Function_Stats
+from peak_stats import Peak_Stats
+from database import session, Base, engine
 """
     Within each line of the main func we can parse the line and 
     call each method -- hard --
@@ -18,6 +20,18 @@ from function_stats import Function_Stats
     main points to take -> execution time, memory consumption, 
 
 """
+Base.metadata.create_all(engine)
+# Just to check the database #
+
+
+def query_all():
+    x = session.query(Function_Stats).all()
+    for y in x:
+        print(y)
+    print("Peak Stats")
+    y = session.query(Peak_Stats).all()
+    for x in y:
+        print(x)
 
 
 def log_stats(func):
@@ -31,13 +45,13 @@ def log_stats(func):
         [x.join() for x in threads]
         end_time = time.perf_counter()      # 2
         run_time = end_time - start_time    # 3
-        print(f"Finished {func.__name__!r} in {run_time:.6f} secs")
+        Peak_Stats.populate_table(func.__name__, run_time)
     return wrapper()
 
 
 def print_stats(name):
     while True:
-        print(getrusage(RUSAGE_SELF))
+        # print(getrusage(RUSAGE_SELF))
         process = psutil.Process(os.getpid())
         mem = process.memory_info().rss / 1000000
         cpu = psutil.cpu_percent(interval=1)
@@ -74,6 +88,4 @@ def main():
 
 
 if __name__ == "__main__":
-    th = threading.Thread(target=main)
-    th.start()
-    th.join()
+    query_all()

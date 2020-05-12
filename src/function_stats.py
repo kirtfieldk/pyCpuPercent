@@ -1,4 +1,3 @@
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Float, Integer, String, Sequence
 from database import Base, session, engine
 """
@@ -18,8 +17,6 @@ class Function_Stats(Base):
     mem = Column(Float)
     duration = Column(Float)
 
-    Base.metadata.create_all(engine)
-
     def __init__(self, func, cpu, duration, mem):
         self.function = func
         self.cpu = cpu
@@ -29,3 +26,6 @@ class Function_Stats(Base):
     def save_to_db(self):
         session.add(self)
         session.commit()
+
+    def __repr__(self):
+        return f"{self.function}: {self.cpu}: {self.mem} mb"
