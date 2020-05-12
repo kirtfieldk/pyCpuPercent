@@ -21,15 +21,6 @@ class Peak_Stats(Base):
         self.mem = mem
         self.duration = duration
 
-    def save_to_db(self):
-        res = session.query(Peak_Stats).filter_by(
-            function=self.function).first()
-        if res == None:
-            session.add(self)
-        if res.cpu < self.cpu:
-            res = self
-        session.commit()
-
     @staticmethod
     def populate_table(func, duration):
         res = session.query(Function_Stats).filter_by(
@@ -39,9 +30,10 @@ class Peak_Stats(Base):
             if largest.cpu < obj.cpu:
                 largest = obj
         exists = session.query(Peak_Stats).filter_by(
-            function=func).all()
-        if exists and exists[0].cpu < largest.cpu:
-            exists = largest
+            function=func).first()
+        if exists and exists.cpu < largest.cpu:
+            exists.cpu = largest.cpu
+            exists.duration = largest.duration
         elif not exists:
             session.add(Peak_Stats(func, largest.cpu, largest.mem, duration))
         session.commit()

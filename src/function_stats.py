@@ -15,13 +15,11 @@ class Function_Stats(Base):
     id = Column(Integer, Sequence('func_id'), primary_key=True)
     cpu = Column(Float)
     mem = Column(Float)
-    duration = Column(Float)
 
-    def __init__(self, func, cpu, duration, mem):
+    def __init__(self, func, cpu, mem):
         self.function = func
         self.cpu = cpu
         self.mem = mem
-        self.duration = duration
 
     def save_to_db(self):
         session.add(self)
