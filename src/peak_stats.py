@@ -1,4 +1,4 @@
-from database import Base, session, engine
+from database import get_session, Base
 from sqlalchemy import Column, Float, Integer, String, Sequence
 from function_stats import Function_Stats
 """
@@ -14,15 +14,20 @@ class Peak_Stats(Base):
     cpu = Column(Float)
     mem = Column(Float)
     duration = Column(Float)
+    description = Column(String(250))
+    home_file = Column(String(250))
 
-    def __init__(self, function, cpu, mem, duration):
+    def __init__(self, function, cpu, mem, duration, description, home_file):
         self.function = function
         self.cpu = cpu
         self.mem = mem
         self.duration = duration
+        self.description = description
+        self.home_file = home_file
 
     @staticmethod
-    def populate_table(func, duration):
+    def populate_table(func, duration, home_file, description):
+        session = get_session()
         res = session.query(Function_Stats).filter_by(
             function=func).all()
         largest = res[0]
@@ -35,7 +40,8 @@ class Peak_Stats(Base):
             exists.cpu = largest.cpu
             exists.duration = largest.duration
         elif not exists:
-            session.add(Peak_Stats(func, largest.cpu, largest.mem, duration))
+            session.add(Peak_Stats(func, largest.cpu, largest.mem,
+                                   duration, description, home_file))
         session.commit()
 
     def __repr__(self):

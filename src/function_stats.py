@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Float, Integer, String, Sequence
-from database import Base, session, engine
+from database import Base, get_session
 """
     The func_stats class
 
@@ -15,13 +15,18 @@ class Function_Stats(Base):
     id = Column(Integer, Sequence('func_id'), primary_key=True)
     cpu = Column(Float)
     mem = Column(Float)
+    description = Column(String(250))
+    home_file = Column(String(250))
 
-    def __init__(self, func, cpu, mem):
+    def __init__(self, func, cpu, mem, description, home_file):
         self.function = func
         self.cpu = cpu
         self.mem = mem
+        self.description = description
+        self.home_file = home_file
 
     def save_to_db(self):
+        session = get_session()
         session.add(self)
         session.commit()
 

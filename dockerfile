@@ -4,7 +4,7 @@ RUN apt-get update  &&\
     apt-get install sudo -y &&\
     sudo apt-get install python3 -y &&\
     apt install python3-pip -y &&\
-    pip3 install psutil 
+    pip3 install psutil sqlalchemy gitpython
 COPY . ./app
 
 
