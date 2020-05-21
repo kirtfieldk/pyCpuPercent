@@ -25,6 +25,7 @@ make_tables()
 
 
 def query_all():
+    session = get_session()
     x = session.query(Function_Stats).all()
     for y in x:
         print(y)
@@ -42,7 +43,7 @@ def log_stats(desc):
             threads.append(threading.Thread(
                 target=print_stats, args=(func, desc, file_name, )))
             threads.append(threading.Thread(target=func, args=(
-                *args, ), kwargs={**kwargs}, name="mains"))
+                *args, ), kwargs={**kwargs}, name=func.__name__))
             start_time = time.perf_counter()
             [x.start() for x in threads]
             [x.join() for x in threads]
@@ -60,14 +61,14 @@ def print_stats(func, desc, filename):
         mem = process.memory_info().rss / 1000000
         cpu = psutil.cpu_percent(interval=1)
         Function_Stats(func.__name__, cpu, mem, desc, filename).save_to_db()
-        if end_logger_when_main_finish():
+        if end_logger_when_main_finish(func.__name__):
             return
 
 
-def end_logger_when_main_finish():
-    """Two threads the main thread and the thread this proccess is running on"""
+def end_logger_when_main_finish(name):
+    """Checks when the main func is done"""
     thr = [x.name for x in threading.enumerate()]
-    return "mains" not in thr
+    return name not in thr
 
 
     # return False
